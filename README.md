@@ -1,1 +1,1 @@
-https://mr-d0nut.github.io/Platazo/
+https://mr-d0nut.github.io/Tinc-Gana
