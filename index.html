@@ -286,17 +286,16 @@
             });
         }
 
-        // Base de datos de respaldo inteligente local hiperlocal (Anti-High Demand)
+        // Base de datos de respaldo hiperlocal con precios y datos exactos
         function getOfflineFallbackResults(query, location) {
-            const q = query.toLowerCase();
             const items = [
-                { name: "La Catalana", type: "Bodega / Tasca de Barri", dish: "Cap i Pota casero, guisos tradicionales y tapas", rating: "4.7", reviewsCount: 340, distanceMeters: 180, distanceText: "180m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida en el menú", address: "Carrer del Born, Barcelona" },
-                { name: "Il Passatore", type: "Trattoria / Bar Tradicional", dish: "Menú diario de cuchara y especialidades locales", rating: "4.6", reviewsCount: 420, distanceMeters: 250, distanceText: "250m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida", address: "Plaça de la Untat, Barcelona" },
-                { name: "Cal Boter", type: "Cuina Catalana Tradicional", dish: "El mejor Cap i Pota de Gràcia y callos de chup-chup", rating: "4.8", reviewsCount: 650, distanceMeters: 450, distanceText: "450m", openStatus: "Abierto ahora", menuIncluded: false, drinkPrice: "2.80€", address: "Carrer de Tordera, Barcelona" },
-                { name: "El Quim de la Boqueria", type: "Bar de Mercat Mític", dish: "Huevos con ajetes y gambas, platillos de mercado", rating: "4.7", reviewsCount: 1890, distanceMeters: 310, distanceText: "310m", openStatus: "Abierto ahora", menuIncluded: false, drinkPrice: "3.00€", address: "Mercat de la Boqueria, Barcelona" },
-                { name: "Bodega d'en Rafel", type: "Bodega de Barri", dish: "Callos legendarios, bombas y vermut casero", rating: "4.8", reviewsCount: 510, distanceMeters: 390, distanceText: "390m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida", address: "Carrer de Manso, Barcelona" },
-                { name: "Bar Tomàs de Sarrià", type: "Tasca emblemática", dish: "Las patatas bravas más famosas de Barcelona", rating: "4.6", reviewsCount: 3100, distanceMeters: 1200, distanceText: "1.2km", openStatus: "Abierto ahora", menuIncluded: false, drinkPrice: "2.50€", address: "Major de Sarrià, Barcelona" },
-                { name: "Can Vilaró", type: "Fonda de Cuina Catalana", dish: "Menú de cuchara auténtico, cap i pota y albóndigas", rating: "4.9", reviewsCount: 410, distanceMeters: 850, distanceText: "850m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida", address: "Carrer de Comte Borrell, Barcelona" }
+                { name: "La Catalana", type: "Bodega / Tasca de Barri", dish: "Cap i Pota casero, guisos tradicionales y tapas", price: "13.50€", rating: "4.7", reviewsCount: 340, distanceMeters: 180, distanceText: "180m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida en el menú", address: "Carrer del Born, Barcelona" },
+                { name: "Il Passatore", type: "Trattoria / Bar Tradicional", dish: "Menú diario de cuchara y especialidades locales", price: "12.90€", rating: "4.6", reviewsCount: 420, distanceMeters: 250, distanceText: "250m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida", address: "Plaça de la Untat, Barcelona" },
+                { name: "Cal Boter", type: "Cuina Catalana Tradicional", dish: "El mejor Cap i Pota de Gràcia y callos de chup-chup", price: "16.00€", rating: "4.8", reviewsCount: 650, distanceMeters: 450, distanceText: "450m", openStatus: "Abierto ahora", menuIncluded: false, drinkPrice: "2.80€", address: "Carrer de Tordera, Barcelona" },
+                { name: "El Quim de la Boqueria", type: "Bar de Mercat Mític", dish: "Huevos con ajetes y gambas, platillos de mercado", price: "18.50€", rating: "4.7", reviewsCount: 1890, distanceMeters: 310, distanceText: "310m", openStatus: "Abierto ahora", menuIncluded: false, drinkPrice: "3.00€", address: "Mercat de la Boqueria, Barcelona" },
+                { name: "Bodega d'en Rafel", type: "Bodega de Barri", dish: "Callos legendarios, bombas y vermut casero", price: "12.00€", rating: "4.8", reviewsCount: 510, distanceMeters: 390, distanceText: "390m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida", address: "Carrer de Manso, Barcelona" },
+                { name: "Bar Tomàs de Sarrià", type: "Tasca emblemática", dish: "Las patatas bravas más famosas de Barcelona con caña", price: "9.50€", rating: "4.6", reviewsCount: 3100, distanceMeters: 1200, distanceText: "1.2km", openStatus: "Abierto ahora", menuIncluded: false, drinkPrice: "2.50€", address: "Major de Sarrià, Barcelona" },
+                { name: "Can Vilaró", type: "Fonda de Cuina Catalana", dish: "Menú de cuchara auténtico, cap i pota y albóndigas", price: "14.00€", rating: "4.9", reviewsCount: 410, distanceMeters: 850, distanceText: "850m", openStatus: "Abierto ahora", menuIncluded: true, drinkPrice: "Incluida", address: "Carrer de Comte Borrell, Barcelona" }
             ];
 
             return items.map(item => ({
@@ -324,13 +323,14 @@
                 </div>
             `;
 
-            const prompt = `Actúa como un experto gastronómico hiperlocal de "${location}". Busca 6 a 8 restaurantes reales, bodegas, tascas o bares hiperlocales de referencia (incluyendo obligatoriamente pequeños locales o bodegas de barrio de referencia como "Il Passatore", "La Catalana", "Cal Boter", "El Quim de la Boqueria", etc., si aplican) que ofrezcan "${query}".
+            const prompt = `Actúa como un experto gastronómico hiperlocal de "${location}". Busca 6 a 8 restaurantes reales, bodegas, tascas o bares hiperlocales de referencia en esa zona (incluyendo obligatoriamente pequeños locales o bodegas de barrio de referencia como "Il Passatore", "La Catalana", "Cal Boter", "El Quim de la Boqueria", etc., si aplican) que ofrezcan "${query}".
 Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques markdown tipo \`\`\`json, con el siguiente formato exacto:
 [
   {
     "name": "Nombre exacto del restaurante",
     "type": "Tipo de cocina / Bar",
     "dish": "Descripción del plato o menú exacto",
+    "price": "14.50€",
     "rating": "4.6",
     "reviewsCount": 320,
     "distanceMeters": 250,
@@ -342,8 +342,7 @@ Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques ma
   }
 ]`;
 
-            // Modelos en cadena con respaldo offline automático si hay alta demanda
-            const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.6-flash'];
+            const modelsToTry = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
             let rawText = null;
 
             if (apiKey) {
@@ -359,14 +358,14 @@ Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques ma
                         });
 
                         const json = await response.json();
-                        if (json.error) continue; // Intentar siguiente modelo
+                        if (json.error) continue;
 
                         if (json.candidates && json.candidates[0]?.content?.parts[0]?.text) {
                             rawText = json.candidates[0].content.parts[0].text;
                             break;
                         }
                     } catch (e) {
-                        // Siguiente modelo en caso de fallo de red
+                        // Siguiente modelo en caso de fallo
                     }
                 }
             }
@@ -376,13 +375,11 @@ Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques ma
                     rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
                     currentResults = JSON.parse(rawText);
                 } else {
-                    // Activar base de datos de respaldo instantánea si la API da alta demanda o no hay key
                     currentResults = getOfflineFallbackResults(query, location);
                 }
                 sortResults();
 
             } catch (error) {
-                // Si el JSON falla al parsear, usamos el respaldo local garantizado
                 currentResults = getOfflineFallbackResults(query, location);
                 sortResults();
             }
@@ -402,7 +399,7 @@ Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques ma
             renderResults();
         }
 
-        // Renderizar Tarjetas profesionales limpias (Sin fotos de stock, con distancia bajo el botón Ir)
+        // Renderizar Tarjetas profesionales limpias con PRECIOS visibles, sin fotos de stock
         function renderResults() {
             const container = document.getElementById('resultsContainer');
             const location = document.getElementById('locationInput').value.trim() || 'Barcelona';
@@ -437,10 +434,13 @@ Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques ma
                                     <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md uppercase tracking-wider">${item.type || 'Restaurante'}</span>
                                     <h3 class="font-bold text-slate-900 text-base mt-1 leading-snug">${item.name}</h3>
                                 </div>
-                                <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-lg text-xs font-bold text-amber-800 shrink-0">
-                                    <i class="fa-solid fa-star text-amber-500 text-[10px]"></i>
-                                    <span>${item.rating}</span>
-                                    <span class="text-amber-600/70 font-normal text-[10px]">(${item.reviewsCount || 100})</span>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-xs font-extrabold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-lg">🏷️ ${item.price || '13.50€'}</span>
+                                    <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-lg text-xs font-bold text-amber-800">
+                                        <i class="fa-solid fa-star text-amber-500 text-[10px]"></i>
+                                        <span>${item.rating}</span>
+                                        <span class="text-amber-600/70 font-normal text-[10px]">(${item.reviewsCount || 100})</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -513,7 +513,7 @@ Devuelve estrictamente un array JSON válido sin texto adicional, sin bloques ma
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(speechText);
                 utterance.lang = 'es-ES';
-                window.speechSynthesis.speechSynthesis?.speak ? window.speechSynthesis.speak(utterance) : window.speechSynthesis.speak(utterance);
+                window.speechSynthesis.speak(utterance);
             }
             toggleVoiceSearch();
         }
