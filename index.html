@@ -44,7 +44,6 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <!-- Selector de Ubicación -->
                 <div class="flex items-center bg-slate-100 hover:bg-slate-200/80 transition rounded-xl px-3 py-1.5 border border-slate-200 text-xs font-medium">
                     <button onclick="detectUserLocation()" title="Usar mi GPS" class="text-orange-500 hover:text-orange-600 mr-2 transition cursor-pointer">
                         <i class="fa-solid fa-location-crosshairs text-sm"></i>
@@ -56,13 +55,11 @@
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-6 flex-1 w-full">
-        
-        <!-- BARRA DE BÚSQUEDA Y VOZ -->
         <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 mb-6">
             <div class="flex items-center gap-2">
                 <div class="flex-1 flex items-center bg-slate-50 rounded-xl px-3.5 py-2 border border-slate-200 focus-within:border-orange-500 focus-within:bg-white transition">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
-                    <input type="text" id="searchInput" placeholder="¿Qué os apetece hoy? (ej. Menú del día, Ramen, Pizza, Callos...)" class="w-full bg-transparent border-none outline-none text-sm text-slate-800 placeholder-slate-400" onkeydown="if(event.key==='Enter') performSearch()">
+                    <input type="text" id="searchInput" placeholder="¿Qué os apetece hoy? (ej. Menú del día, Sushi, Ramen, Callos...)" class="w-full bg-transparent border-none outline-none text-sm text-slate-800 placeholder-slate-400" onkeydown="if(event.key==='Enter') performSearch()">
                     <button id="micBtn" onclick="toggleVoiceSearch()" class="text-slate-400 hover:text-orange-500 p-1.5 transition rounded-lg hover:bg-orange-50 ml-2 cursor-pointer" title="Búsqueda por voz">
                         <i class="fa-solid fa-microphone text-sm"></i>
                     </button>
@@ -72,11 +69,23 @@
                 </button>
             </div>
 
-            <!-- ETIQUETAS RÁPIDAS -->
+            <!-- ETIQUETAS RÁPIDAS AMPLIADAS -->
             <div class="flex items-center gap-2 mt-3 overflow-x-auto pb-1 text-xs no-scrollbar">
                 <span class="text-slate-400 font-medium whitespace-nowrap"><i class="fa-solid fa-fire mr-1 text-orange-500"></i> Sugerencias:</span>
                 <button onclick="quickSearch('Menú del día')" class="bg-orange-50 text-orange-700 hover:bg-orange-100 font-semibold px-3 py-1.5 rounded-lg border border-orange-200/60 whitespace-nowrap transition cursor-pointer">
                     🍽️ Menú del día
+                </button>
+                <button onclick="quickSearch('Sushi')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    🍣 Sushi
+                </button>
+                <button onclick="quickSearch('Ramen')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    🍜 Ramen
+                </button>
+                <button onclick="quickSearch('Pizza')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    🍕 Pizza
+                </button>
+                <button onclick="quickSearch('Hamburguesas')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    🍔 Hamburguesas
                 </button>
                 <button onclick="quickSearch('Callos')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
                     🔥 Callos
@@ -106,7 +115,6 @@
         </div>
 
         <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Estado Inicial de bienvenida -->
             <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-xs">
                 <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
                     <i class="fa-solid fa-compass"></i>
@@ -156,7 +164,6 @@
                 recognition.onerror = () => { stopVoiceIndicator(); };
                 recognition.onend = () => { stopVoiceIndicator(); };
             }
-            // Realizar búsqueda inicial por defecto
             quickSearch('Menú del día');
         });
 
@@ -222,154 +229,157 @@
                         <i class="fa-solid fa-compass"></i>
                     </div>
                     <p class="font-bold text-slate-800 text-sm">Radarizando zona ${location}...</p>
-                    <p class="text-xs text-slate-400 mt-1">Buscando locales con ${query} abierto ahora</p>
+                    <p class="text-xs text-slate-400 mt-1">Buscando locales especializados en ${query}</p>
                 </div>
             `;
 
             setTimeout(() => {
                 currentResults = generateHyperlocalResults(query, location);
                 sortResults();
-            }, 300);
+            }, 250);
         }
 
         function generateHyperlocalResults(query, location) {
             const q = query.toLowerCase();
-            
-            // Tus locales habituales de referencia absoluta que deben salir siempre en búsquedas cercanas / menú / tapas
-            const habitualFavorites = [
-                { 
-                    name: "Il Passatore", 
-                    type: "Trattoria / Menú & Pasta Fresca", 
-                    dish: `Menú de mediodía con pasta fresca artesanal, focaccia y bebida incluida`, 
-                    price: "13.50€", 
-                    rating: "4.8", 
-                    reviewsCount: 1240, 
-                    distanceMeters: 120, 
-                    distanceText: "120m", 
-                    address: "Plaça del Palau, Ciutat Vella",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "La Catalana", 
-                    type: "Bodega de barrio / Tasca", 
-                    dish: `Menú casero de mercado con guisados tradicionales y ${q}`, 
-                    price: "13.00€", 
-                    rating: "4.7", 
-                    reviewsCount: 630, 
-                    distanceMeters: 180, 
-                    distanceText: "180m", 
-                    address: "Carrer de Mar, El Born",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "Bodega Biarritz 1881", 
-                    type: "Tasca tradicional", 
-                    dish: `Menú de tapas y guisados de la abuela con bebida incluida`, 
-                    price: "15.00€", 
-                    rating: "4.8", 
-                    reviewsCount: 2230, 
-                    distanceMeters: 290, 
-                    distanceText: "290m", 
-                    address: "Carrer del Vidre, 8",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "Bar Gelida", 
-                    type: "Bodega clásica de barrio", 
-                    dish: `Menú de mediodía legendario (fricandó, cap i pota) con vino y gaseosa`, 
-                    price: "13.50€", 
-                    rating: "4.6", 
-                    reviewsCount: 2850, 
-                    distanceMeters: 340, 
-                    distanceText: "340m", 
-                    address: "C/ del Urgell, 102",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "Bodega Sepúlveda", 
-                    type: "Tasca / Bodega de mercado", 
-                    dish: `Menú ejecutivo con producto fresco del día y postre casero`, 
-                    price: "15.50€", 
-                    rating: "4.5", 
-                    reviewsCount: 1240, 
-                    distanceMeters: 420, 
-                    distanceText: "420m", 
-                    address: "Carrer de Sepúlveda, 173",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "Can Vilaró", 
-                    type: "Fonda histórica de mercado", 
-                    dish: `Menú de cuchara y desayuno de forquilla con ${q}`, 
-                    price: "14.00€", 
-                    rating: "4.7", 
-                    reviewsCount: 920, 
-                    distanceMeters: 510, 
-                    distanceText: "510m", 
-                    address: "Carrer del Compte Borrell, 61",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "La Pubilla", 
-                    type: "Bar de barrio & Cuina de mercat", 
-                    dish: `Menú de mediodía de alta calidad con ${q} y vino de la casa`, 
-                    price: "16.00€", 
-                    rating: "4.8", 
-                    reviewsCount: 1450, 
-                    distanceMeters: 620, 
-                    distanceText: "620m", 
-                    address: "Plaça de la Llibertat, 23",
-                    menuIncluded: true 
-                },
-                { 
-                    name: "Restaurante L'Olivera", 
-                    type: "Cocina mediterránea", 
-                    dish: `Menú ejecutivo con arroz meloso o carne a la brasa`, 
-                    price: "14.50€", 
-                    rating: "4.6", 
-                    reviewsCount: 980, 
-                    distanceMeters: 700, 
-                    distanceText: "700m", 
-                    address: "Carrer de Balmes, 137",
-                    menuIncluded: true 
-                }
-            ];
-
-            // Si busca algo específico como ramen, pizza o burger, creamos resultados orientados a eso
             let results = [];
-            if (q.includes('ramen') || q.includes('noodle') || q.includes('sushi') || q.includes('japon')) {
+
+            // CATEGORÍA: SUSHI
+            if (q.includes('sushi') || q.includes('japonés') || q.includes('japones') || q.includes('nigiri')) {
                 results = [
-                    { name: "Kitsune Ramen Bar", type: "Ramen-ya Auténtico", dish: "Tonkotsu Ramen tradicional con caldo 12h y chashu", price: "12.50€", rating: "4.8", reviewsCount: 420, distanceMeters: 140, distanceText: "140m", address: "Carrer de Girona, 42", menuIncluded: true },
-                    { name: "Yatai Izakaya", type: "Tasca Japonesa", dish: "Shoyu Ramen y gyozas caseras de cerdo ibérico", price: "13.00€", rating: "4.7", reviewsCount: 630, distanceMeters: 290, distanceText: "290m", address: "Carrer del Comte Borrell, 115", menuIncluded: true },
-                    { name: "Ramen House Lab", type: "Restaurante Asiático", dish: "Menú Ramen con edamame y postre mochi", price: "14.50€", rating: "4.6", reviewsCount: 310, distanceMeters: 410, distanceText: "410m", address: "Passeig de Sant Joan, 22", menuIncluded: true },
-                    { name: "Osaka Street Noodle", type: "Comida Callejera", dish: "Ramen vegano de setas shiitake y sésamo negro", price: "13.50€", rating: "4.7", reviewsCount: 245, distanceMeters: 550, distanceText: "550m", address: "Carrer de Bailèn, 88", menuIncluded: true }
+                    { name: "Matsuri Sushi Bar", type: "Bar de Sushi & Rolls", dish: "Combinado de 18 piezas de nigiri variado y maki de atún rojo con sopa miso", price: "16.50€", rating: "4.8", reviewsCount: 840, distanceMeters: 130, distanceText: "130m", address: "Carrer del Rec, 11", menuIncluded: true },
+                    { name: "Sushibu Express", type: "Restaurante Japones", dish: "Menú mediodía con tartar de salmón, uramaki y bebida", price: "14.50€", rating: "4.7", reviewsCount: 520, distanceMeters: 210, distanceText: "210m", address: "Carrer de Princesa, 24", menuIncluded: true },
+                    { name: "Koy Nom Sushi", type: "Sushi Tradicional", dish: "Bandeja de nigiris flambeados y edamame al fuego de sésamo", price: "17.00€", rating: "4.9", reviewsCount: 1100, distanceMeters: 340, distanceText: "340m", address: "Passeig del Born, 16", menuIncluded: true },
+                    { name: "Nakama Bar", type: "Nikkei & Sushi Fusion", dish: "Rollos tempurizados y gyozas de langostino con salsa acevichada", price: "15.90€", rating: "4.6", reviewsCount: 390, distanceMeters: 450, distanceText: "450m", address: "Carrer de Trafalgar, 38", menuIncluded: true },
+                    { name: "Tokyoya Fusion", type: "Comida Japonesa", dish: "Menú ejecutivo con sashimi fresco y yakisoba de ternera", price: "14.00€", rating: "4.5", reviewsCount: 280, distanceMeters: 560, distanceText: "560m", address: "Carrer de Bailèn, 45", menuIncluded: true }
                 ];
-            } else if (q.includes('pizza') || q.includes('pasta') || q.includes('italian')) {
+            } 
+            // CATEGORÍA: RAMEN
+            else if (q.includes('ramen') || q.includes('noodle') || q.includes('asiatico')) {
                 results = [
-                    { name: "Il Passatore", type: "Trattoria Italiana", dish: "Menú mediodía con pasta fresca y focaccia al romero", price: "13.50€", rating: "4.8", reviewsCount: 1240, distanceMeters: 120, distanceText: "120m", address: "Plaça del Palau, Ciutat Vella", menuIncluded: true },
-                    { name: "Spacca Napoli Pizzeria", type: "Pizzería Napolitana", dish: "Pizza de masa madre fermentada 48h con mozzarella di bufala", price: "13.50€", rating: "4.8", reviewsCount: 1250, distanceMeters: 180, distanceText: "180m", address: "Carrer de Carders, 31", menuIncluded: true },
-                    { name: "Trattoria Da Marco", type: "Trattoria Italiana", dish: "Menú con lasaña casera y bebida incluida", price: "12.90€", rating: "4.7", reviewsCount: 510, distanceMeters: 330, distanceText: "330m", address: "Carrer de Diputació, 240", menuIncluded: true },
-                    { name: "Osteria del Vino", type: "Osteria y Vinos", dish: "Tagliolini al tartufo y copa de vino italiano", price: "16.00€", rating: "4.9", reviewsCount: 210, distanceMeters: 590, distanceText: "590m", address: "Carrer de Còrsega, 210", menuIncluded: true }
+                    { name: "Kitsune Ramen Bar", type: "Ramen-ya Auténtico", dish: "Tonkotsu Ramen tradicional con caldo 12h, huevo ajitsuke y chashu", price: "13.50€", rating: "4.8", reviewsCount: 650, distanceMeters: 140, distanceText: "140m", address: "Carrer de Girona, 42", menuIncluded: true },
+                    { name: "Yatai Izakaya", type: "Tasca Japonesa", dish: "Shoyu Ramen de pollo campero y gyozas caseras de cerdo ibérico", price: "13.00€", rating: "4.7", reviewsCount: 780, distanceMeters: 290, distanceText: "290m", address: "Carrer del Comte Borrell, 115", menuIncluded: true },
+                    { name: "Ramen House Lab", type: "Restaurante Asiático", dish: "Menú Ramen con edamame crujiente y postre mochi artesano", price: "14.50€", rating: "4.6", reviewsCount: 410, distanceMeters: 410, distanceText: "410m", address: "Passeig de Sant Joan, 22", menuIncluded: true },
+                    { name: "Osaka Street Noodle", type: "Comida Callejera Asiatica", dish: "Ramen vegano de setas shiitake, miso rojo y sésamo negro", price: "12.90€", rating: "4.7", reviewsCount: 330, distanceMeters: 550, distanceText: "550m", address: "Carrer de Bailèn, 88", menuIncluded: true }
                 ];
-            } else {
-                // Por defecto o para menú del día, callos, bravas, etc., devolvemos los favoritos habituales y más opciones de la zona
-                results = [...habitualFavorites];
-                
-                // Añadimos variaciones dinámicas basadas en la consulta exacta si es específica
-                if (q !== 'menú del día' && q !== 'menu') {
-                    results.unshift({
-                        name: "La Catalana",
-                        type: "Especialista en " + query,
-                        dish: `Plato estrella: ${query} con producto fresco de mercado y ración generosa`,
-                        price: "12.50€",
-                        rating: "4.8",
-                        reviewsCount: 410,
-                        distanceMeters: 180,
-                        distanceText: "180m",
+            }
+            // CATEGORÍA: PIZZA / ITALIANO
+            else if (q.includes('pizza') || q.includes('pasta') || q.includes('italian')) {
+                results = [
+                    { name: "Il Passatore", type: "Trattoria Italiana & Pizzería", dish: "Menú de mediodía con pasta fresca artesanal, focaccia y bebida", price: "13.50€", rating: "4.8", reviewsCount: 1240, distanceMeters: 120, distanceText: "120m", address: "Plaça del Palau, Ciutat Vella", menuIncluded: true },
+                    { name: "Spacca Napoli Pizzeria", type: "Pizzería Napolitana", dish: "Pizza artesana de masa madre fermentada 48h con mozzarella di bufala", price: "13.50€", rating: "4.8", reviewsCount: 1450, distanceMeters: 180, distanceText: "180m", address: "Carrer de Carders, 31", menuIncluded: true },
+                    { name: "Trattoria Da Marco", type: "Trattoria Clásica", dish: "Menú con lasaña boloñesa casera al horno de leña y tiramisú", price: "12.90€", rating: "4.7", reviewsCount: 610, distanceMeters: 330, distanceText: "330m", address: "Carrer de Diputació, 240", menuIncluded: true },
+                    { name: "Osteria del Vino", type: "Osteria & Vinos", dish: "Tagliolini al tartufo fresco y copa de vino tinto italiano", price: "16.00€", rating: "4.9", reviewsCount: 290, distanceMeters: 590, distanceText: "590m", address: "Carrer de Còrsega, 210", menuIncluded: true }
+                ];
+            }
+            // CATEGORÍA: HAMBURGUESAS
+            else if (q.includes('hamburguesa') || q.includes('burger') || q.includes('hambur')) {
+                results = [
+                    { name: "Timesburg Born", type: "Hamburguesería Artesanal", dish: "Menú burger de carne de vacuno 180g con cheddar fundido y patatas rústicas", price: "13.90€", rating: "4.7", reviewsCount: 1890, distanceMeters: 160, distanceText: "160m", address: "Carrer del Rec Comtal, 16", menuIncluded: true },
+                    { name: "Bacoa Burger", type: "Hamburguesería de Autor", dish: "Burger payesa con bacon ahumado, cebolla caramelizada y salsa casera", price: "14.50€", rating: "4.8", reviewsCount: 2150, distanceMeters: 270, distanceText: "270m", address: "Carrer dels Carders, 31", menuIncluded: true },
+                    { name: "La Real Hamburguesería", type: "Gourmet Burgers", dish: "Menú ejecutivo con smash burger doble, aros de cebolla y bebida", price: "13.00€", rating: "4.6", reviewsCount: 920, distanceMeters: 440, distanceText: "440m", address: "Carrer de València, 281", menuIncluded: true },
+                    { name: "A Voces Burger", type: "Burguer de Barrio", dish: "Hamburguesa trufada con champiñones sautés y pan brioche", price: "12.50€", rating: "4.7", reviewsCount: 430, distanceMeters: 520, distanceText: "520m", address: "Carrer de Roger de Llúria, 110", menuIncluded: true }
+                ];
+            }
+            // CATEGORÍA POR DEFECTO / MENÚ DEL DÍA Y TASCAS HABITUALES (INCLUYENDO IL PASSATORE Y LA CATALANA)
+            else {
+                results = [
+                    { 
+                        name: "Il Passatore", 
+                        type: "Trattoria / Menú & Pasta Fresca", 
+                        dish: `Menú mediodía con pasta fresca artesanal, focaccia al romero y bebida`, 
+                        price: "13.50€", 
+                        rating: "4.8", 
+                        reviewsCount: 1240, 
+                        distanceMeters: 120, 
+                        distanceText: "120m", 
+                        address: "Plaça del Palau, Ciutat Vella",
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "La Catalana", 
+                        type: "Bodega de barrio / Tasca", 
+                        dish: `Menú casero con ${query} y guisados tradicionales de mercado`, 
+                        price: "13.00€", 
+                        rating: "4.7", 
+                        reviewsCount: 630, 
+                        distanceMeters: 180, 
+                        distanceText: "180m", 
                         address: "Carrer de Mar, El Born",
-                        menuIncluded: true
-                    });
-                }
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "Bodega Biarritz 1881", 
+                        type: "Tasca tradicional", 
+                        dish: `Menú de tapas y guisados con ${query} y bebida incluida`, 
+                        price: "15.00€", 
+                        rating: "4.8", 
+                        reviewsCount: 2230, 
+                        distanceMeters: 290, 
+                        distanceText: "290m", 
+                        address: "Carrer del Vidre, 8",
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "Bar Gelida", 
+                        type: "Bodega clásica de barrio", 
+                        dish: `Menú legendario (fricandó, cap i pota) con vino y gaseosa`, 
+                        price: "13.50€", 
+                        rating: "4.6", 
+                        reviewsCount: 2850, 
+                        distanceMeters: 340, 
+                        distanceText: "340m", 
+                        address: "C/ del Urgell, 102",
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "Bodega Sepúlveda", 
+                        type: "Tasca / Bodega de mercado", 
+                        dish: `Menú ejecutivo con ${query}, producto fresco del día y postre casero`, 
+                        price: "15.50€", 
+                        rating: "4.5", 
+                        reviewsCount: 1240, 
+                        distanceMeters: 420, 
+                        distanceText: "420m", 
+                        address: "Carrer de Sepúlveda, 173",
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "Can Vilaró", 
+                        type: "Fonda histórica de mercado", 
+                        dish: `Menú de cuchara y desayuno de forquilla con ${query}`, 
+                        price: "14.00€", 
+                        rating: "4.7", 
+                        reviewsCount: 920, 
+                        distanceMeters: 510, 
+                        distanceText: "510m", 
+                        address: "Carrer del Compte Borrell, 61",
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "La Pubilla", 
+                        type: "Bar de barrio & Cuina de mercat", 
+                        dish: `Menú de mediodía de alta calidad con ${query} y vino de la casa`, 
+                        price: "16.00€", 
+                        rating: "4.8", 
+                        reviewsCount: 1450, 
+                        distanceMeters: 620, 
+                        distanceText: "620m", 
+                        address: "Plaça de la Llibertat, 23",
+                        menuIncluded: true 
+                    },
+                    { 
+                        name: "Restaurante L'Olivera", 
+                        type: "Cocina mediterránea", 
+                        dish: `Menú ejecutivo con arroz meloso, carne a la brasa y ${query}`, 
+                        price: "14.50€", 
+                        rating: "4.6", 
+                        reviewsCount: 980, 
+                        distanceMeters: 700, 
+                        distanceText: "700m", 
+                        address: "Carrer de Balmes, 137",
+                        menuIncluded: true 
+                    }
+                ];
             }
 
             return results;
@@ -483,11 +493,11 @@
             isListening = false;
             const micBtn = document.getElementById('micBtn');
             micBtn.classList.remove('text-orange-500', 'bg-orange-100', 'pulse-ring');
-            document.getElementById('searchInput').placeholder = '¿Qué os apetece hoy? (ej. Menú del día, Ramen...)';
+            document.getElementById('searchInput').placeholder = '¿Qué os apetece hoy? (ej. Menú del día, Sushi...)';
         }
 
         function toggleLiveAssistant() {
-            const speechText = "¡Hola! Soy tu asistente Platàs. He cargado tus sitios habituales como Il Passatore y La Catalana para que los tengas a mano al instante.";
+            const speechText = "¡Hola! Soy tu asistente Platàs. He cargado tus sitios habituales como Il Passatore y La Catalana, y las nuevas opciones de sushi y ramen para que los tengáis a mano.";
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(speechText);
                 utterance.lang = 'es-ES';
