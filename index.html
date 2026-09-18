@@ -295,7 +295,7 @@
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl text-red-500">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">¡Error en la consulta!</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">¡Vaya! Algo ha ido mal</h3>
                     <p class="text-gray-500 text-sm max-w-sm mx-auto break-words font-mono text-xs">${error.message}</p>
                 </div>
             `;
@@ -362,4 +362,18 @@
         };
     }
     if (micBtn) micBtn.addEventListener('click', () => { try { recognition.start(); } catch(e){} });
+    
+    const liveVoiceBtn = document.getElementById('liveVoiceBtn');
+    if (liveVoiceBtn) {
+        liveVoiceBtn.addEventListener('click', () => {
+            if (recognition) {
+                try {
+                    recognition.start();
+                    alert("Escuchando... Di el plato que buscas (ej. 'Callos' o 'Menú del día').");
+                } catch(e) { alert("Micrófono activo o no disponible."); }
+            } else {
+                alert("Tu navegador no soporta reconocimiento de voz.");
+            }
+        });
+    }
 </script>
