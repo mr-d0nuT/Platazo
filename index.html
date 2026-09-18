@@ -64,8 +64,8 @@
                     <i class="fa-solid fa-location-crosshairs text-orange-500 cursor-pointer hover:scale-110 transition-transform" id="gpsBtn" title="Usar mi ubicación GPS"></i>
                     <input type="text" id="locationInput" value="Barcelona Centro" class="bg-transparent border-none outline-none w-28 md:w-40 text-gray-700 font-semibold text-sm placeholder-gray-400" placeholder="¿Dónde estás?">
                 </div>
-                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 cursor-pointer">
-                    <i class="fa-regular fa-user"></i>
+                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 cursor-pointer shadow-sm transition-transform hover:scale-105" id="settingsBtn" title="Configuración de IA">
+                    <i class="fa-solid fa-gear"></i>
                 </div>
             </div>
         </div>
@@ -147,11 +147,54 @@
         </a>
     </nav>
 
+    <!-- Modal de Configuración API -->
+    <div id="apiModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl transform transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900">Configuración IA</h3>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Para buscar platos en vivo, introduce tu API Key gratuita de Gemini. Solo se guarda en la memoria de este dispositivo.</p>
+            <input type="password" id="apiKeyInput" placeholder="Pega aquí tu API Key (AIzaSy...)" class="w-full border border-gray-300 rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none mb-4 bg-gray-50">
+            <button id="saveApiBtn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-colors">Guardar en mi dispositivo</button>
+            <p class="text-[10px] text-gray-400 text-center mt-3">Tus datos están seguros. El código público no contiene tu clave.</p>
+        </div>
+    </div>
+
     <script>
         // --- CONFIGURACIÓN DE IA ---
-        // ¡OJO! Pon tu API Key gratuita de Google AI Studio aquí:
-        const apiKey = "PON_TU_API_KEY_AQUI"; 
         let currentResults = [];
+
+        // Gestión de la API Key segura
+        const apiModal = document.getElementById('apiModal');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        
+        function getApiKey() {
+            return localStorage.getItem('platas_api_key');
+        }
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            apiKeyInput.value = getApiKey() || '';
+            apiModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            apiModal.classList.add('hidden');
+        });
+
+        document.getElementById('saveApiBtn').addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('platas_api_key', key);
+                apiModal.classList.add('hidden');
+                
+                // Si el usuario intentó buscar antes y falló, reintenta automáticamente
+                if (searchInput.value) performSearch(searchInput.value);
+            } else {
+                localStorage.removeItem('platas_api_key');
+                apiModal.classList.add('hidden');
+            }
+        });
 
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
@@ -248,8 +291,10 @@
         }
 
         async function fetchDynamicPlaces(dish, location) {
-            if (apiKey === "PON_TU_API_KEY_AQUI") {
-                throw new Error("Falta la API Key de Gemini. Añádela en el código fuente para buscar datos en vivo.");
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                apiModal.classList.remove('hidden');
+                throw new Error("Falta la API Key. Por favor, añádela en el menú que acaba de abrirse para poder usar la IA.");
             }
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
@@ -336,8 +381,8 @@
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl text-red-500">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-1">¡Vaya! Error de conexión</h3>
-                        <p class="text-gray-500 text-sm max-w-sm mx-auto">${error.message === "Falta la API Key de Gemini. Añádela en el código fuente para buscar datos en vivo." ? error.message : 'No hemos podido contactar con el oráculo gastronómico. Inténtalo de nuevo.'}</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-1">¡Vaya! Algo ha ido mal</h3>
+                        <p class="text-gray-500 text-sm max-w-sm mx-auto">${error.message.includes("API Key") ? error.message : 'No hemos podido contactar con el oráculo gastronómico. Revisa tu conexión o tu API Key.'}</p>
                     </div>
                 `;
             }
