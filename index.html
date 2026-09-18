@@ -297,8 +297,8 @@
                 throw new Error("Falta la API Key. Por favor, añádela en el menú que acaba de abrirse para poder usar la IA.");
             }
 
-            // Actualizado al último modelo de la API
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            // CORRECCIÓN: Usamos el modelo estable gemini-1.5-flash (el anterior no existía para todas las cuentas)
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
             const prompt = `Actúa como un recomendador gastronómico experto. El usuario busca comer "${dish}" en o cerca de la ubicación "${location}".
             Genera un JSON con entre 5 y 8 restaurantes REALES y conocidos de esa zona específica que destaquen por ese plato. 
@@ -343,19 +343,28 @@
             });
             
             if (!response.ok) {
-                // Si la API de Google da error, capturamos el motivo exacto
                 const errorData = await response.json().catch(() => ({}));
                 console.error("Detalles del error de Google:", errorData);
                 throw new Error(errorData.error?.message || "Error en la API de búsqueda");
             }
             
             const data = await response.json();
+            
+            if (!data.candidates || data.candidates.length === 0) {
+                throw new Error("La API no generó resultados.");
+            }
+            
             let resultText = data.candidates[0].content.parts[0].text;
             
-            // FILTRO DE SEGURIDAD: Limpiar bloques Markdown si la IA los añade por error
-            resultText = resultText.replace(/^```json\n?/gi, '').replace(/```$/gi, '').trim();
+            // FILTRO DE SEGURIDAD: Limpiar bloques Markdown y posibles espacios extra
+            resultText = resultText.replace(/^```(?:json)?\n?/gi, '').replace(/```$/gi, '').trim();
             
-            return JSON.parse(resultText);
+            try {
+                return JSON.parse(resultText);
+            } catch (e) {
+                console.error("Error parseando JSON:", resultText);
+                throw new Error("Google devolvió datos con un formato ilegible. Vuelve a pulsar Buscar.");
+            }
         }
 
         async function performSearch(query) {
