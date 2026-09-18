@@ -1,654 +1,365 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Platàs - Encuentra tu plato</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            -webkit-tap-highlight-color: transparent;
-        }
-        /* Custom scrollbar for horizontal lists */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .dish-card {
-            transition: transform 0.2s ease-in-out;
-        }
-        .dish-card:hover {
-            transform: translateY(-5px);
-        }
-        .live-fab {
-            position: fixed;
-            bottom: 5rem;
-            right: 1rem;
-            z-index: 60;
-            box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.5);
-            transition: all 0.3s ease;
-        }
-        @media (min-width: 768px) {
-            .live-fab {
-                bottom: 2rem;
-                right: 2rem;
-            }
-        }
-        .live-fab.active {
-            animation: pulse-ring 2s infinite;
-        }
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(249, 115, 22, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
-        }
-    </style>
-</head>
-<body class="text-gray-800 antialiased pb-20 md:pb-0">
-
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-utensils text-orange-500 text-2xl"></i>
-                <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Platàs</h1>
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-utensils text-orange-500 text-2xl"></i>
+            <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Platàs</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5 shadow-inner">
+                <i class="fa-solid fa-location-crosshairs text-orange-500 cursor-pointer hover:scale-110 transition-transform" id="gpsBtn" title="Usar mi ubicación GPS"></i>
+                <input type="text" id="locationInput" value="Barcelona Centro" class="bg-transparent border-none outline-none w-28 md:w-40 text-gray-700 font-semibold text-sm placeholder-gray-400" placeholder="¿Dónde estás?">
             </div>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5 shadow-inner">
-                    <i class="fa-solid fa-location-crosshairs text-orange-500 cursor-pointer hover:scale-110 transition-transform" id="gpsBtn" title="Usar mi ubicación GPS"></i>
-                    <input type="text" id="locationInput" value="Barcelona Centro" class="bg-transparent border-none outline-none w-28 md:w-40 text-gray-700 font-semibold text-sm placeholder-gray-400" placeholder="¿Dónde estás?">
-                </div>
-                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 cursor-pointer shadow-sm transition-transform hover:scale-105" id="settingsBtn" title="Configuración de IA">
-                    <i class="fa-solid fa-gear"></i>
-                </div>
+            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 cursor-pointer shadow-sm transition-transform hover:scale-105" id="settingsBtn" title="Configuración de IA">
+                <i class="fa-solid fa-gear"></i>
             </div>
         </div>
-        
-        <div class="max-w-4xl mx-auto px-4 pb-4">
-            <div class="relative">
-                <input type="text" id="searchInput" placeholder="¿Qué plato te apetece hoy? (ej. Callos, Cap i Pota...)" 
-                       class="w-full pl-12 pr-28 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-inner">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                    <button id="micBtn" class="text-gray-400 hover:text-orange-500 p-2 transition-colors rounded-full flex items-center justify-center" title="Buscar por voz">
-                        <i class="fa-solid fa-microphone text-lg"></i>
-                    </button>
-                    <button id="searchBtn" class="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-orange-600 transition-colors">
-                        Buscar
-                    </button>
-                </div>
+    </div>
+    
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+        <div class="relative">
+            <input type="text" id="searchInput" placeholder="¿Qué plato te apetece hoy? (ej. Callos, Cap i Pota, Menú del día...)" 
+                   class="w-full pl-12 pr-28 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-inner">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                <button id="micBtn" class="text-gray-400 hover:text-orange-500 p-2 transition-colors rounded-full flex items-center justify-center" title="Buscar por voz">
+                    <i class="fa-solid fa-microphone text-lg"></i>
+                </button>
+                <button id="searchBtn" class="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-orange-600 transition-colors">
+                    Buscar
+                </button>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <main class="max-w-4xl mx-auto px-4 pt-6">
-        
-        <div class="mb-8">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Lo más buscado cerca de ti</h2>
-            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
-                <button class="tag-btn whitespace-nowrap bg-orange-50 border border-orange-200 text-orange-600 px-4 py-2 rounded-full text-sm font-bold hover:bg-orange-100 hover:border-orange-300 transition-colors shadow-sm" data-query="Menú del día">🍽️ Menú del día</button>
-                <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Callos">🔥 Callos</button>
-                <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Cap i pota">🍲 Cap i Pota</button>
-                <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Bravas">🥔 Bravas</button>
-                <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Paella">🥘 Paella</button>
-            </div>
-        </div>
-
-        <div id="resultsContainer" class="hidden">
-            <div class="flex justify-between items-end mb-4">
-                <h2 class="text-xl font-bold" id="resultsTitle">Resultados</h2>
-                <div class="relative flex items-center bg-gray-50 rounded-lg border border-gray-200 px-2 py-1">
-                    <i class="fa-solid fa-arrow-down-short-wide text-gray-400 absolute left-2 pointer-events-none"></i>
-                    <select id="sortSelect" class="text-sm text-gray-600 bg-transparent pl-6 pr-4 cursor-pointer hover:text-gray-900 focus:outline-none appearance-none font-medium">
-                        <option value="nota">Mejor puntuados</option>
-                        <option value="distancia">Más cercanos</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 absolute right-2 pointer-events-none"></i>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="resultsGrid">
-                <!-- Los resultados se generarán aquí con JavaScript -->
-            </div>
-        </div>
-
-        <div id="defaultContainer">
-            <div class="text-center py-16">
-                <i class="fa-solid fa-utensils text-6xl text-gray-200 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-400">¿Qué te pide el cuerpo?</h2>
-                <p class="text-gray-500 mt-2">Busca un plato y nosotros encontramos quién lo hace mejor por tu zona.</p>
-            </div>
-        </div>
-
-    </main>
-
-    <button id="liveVoiceBtn" class="live-fab bg-orange-500 hover:bg-orange-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-xl cursor-pointer" title="Hablar con Platàs">
-        <i class="fa-solid fa-headset"></i>
-    </button>
-
-    <nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around items-center pb-safe pt-2 px-2 z-50 pb-2">
-        <a href="#" class="flex flex-col items-center p-2 text-orange-500">
-            <i class="fa-solid fa-compass text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Explorar</span>
-        </a>
-        <a href="#" class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600">
-            <i class="fa-solid fa-camera text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Subir Plato</span>
-        </a>
-        <a href="#" class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600">
-            <i class="fa-solid fa-bookmark text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Guardados</span>
-        </a>
-    </nav>
-
-    <!-- Modal de Configuración API -->
-    <div id="apiModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl transform transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Configuración IA</h3>
-                <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <p class="text-sm text-gray-600 mb-4">Para buscar platos en vivo, introduce tu API Key gratuita de Gemini. Solo se guarda en la memoria de este dispositivo.</p>
-            <input type="password" id="apiKeyInput" placeholder="Pega aquí tu API Key (AIzaSy...)" class="w-full border border-gray-300 rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none mb-4 bg-gray-50">
-            <button id="saveApiBtn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-colors">Guardar en mi dispositivo</button>
-            <p class="text-[10px] text-gray-400 text-center mt-3">Tus datos están seguros. El código público no contiene tu clave.</p>
+<main class="max-w-4xl mx-auto px-4 pt-6">
+    
+    <div class="mb-8">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Lo más buscado cerca de ti</h2>
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+            <button class="tag-btn whitespace-nowrap bg-orange-50 border border-orange-200 text-orange-600 px-4 py-2 rounded-full text-sm font-bold hover:bg-orange-100 hover:border-orange-300 transition-colors shadow-sm" data-query="Menú del día">🍽️ Menú del día</button>
+            <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Callos">🔥 Callos</button>
+            <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Cap i pota">🍲 Cap i Pota</button>
+            <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Bravas">🥔 Bravas</button>
+            <button class="tag-btn whitespace-nowrap bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium hover:border-orange-500 hover:text-orange-500 transition-colors" data-query="Paella">🥘 Paella</button>
         </div>
     </div>
 
-    <script>
-        // --- CONFIGURACIÓN DE IA ---
-        let currentResults = [];
-
-        // Gestión de la API Key segura
-        const apiModal = document.getElementById('apiModal');
-        const apiKeyInput = document.getElementById('apiKeyInput');
+    <div id="resultsContainer" class="hidden">
+        <div class="flex justify-between items-end mb-4">
+            <h2 class="text-xl font-bold" id="resultsTitle">Resultados</h2>
+            <div class="relative flex items-center bg-gray-50 rounded-lg border border-gray-200 px-2 py-1">
+                <i class="fa-solid fa-arrow-down-short-wide text-gray-400 absolute left-2 pointer-events-none"></i>
+                <select id="sortSelect" class="text-sm text-gray-600 bg-transparent pl-6 pr-4 cursor-pointer hover:text-gray-900 focus:outline-none appearance-none font-medium">
+                    <option value="nota">Mejor puntuados</option>
+                    <option value="distancia">Más cercanos</option>
+                </select>
+                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 absolute right-2 pointer-events-none"></i>
+            </div>
+        </div>
         
-        function getApiKey() {
-            return localStorage.getItem('platas_api_key');
-        }
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="resultsGrid"></div>
+    </div>
 
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-            apiKeyInput.value = getApiKey() || '';
-            apiModal.classList.remove('hidden');
-        });
+    <div id="defaultContainer">
+        <div class="text-center py-16">
+            <i class="fa-solid fa-utensils text-6xl text-gray-200 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-400">¿Qué te pide el cuerpo?</h2>
+            <p class="text-gray-500 mt-2">Busca un plato y nosotros encontramos quién lo hace mejor por tu zona.</p>
+        </div>
+    </div>
 
-        document.getElementById('closeModalBtn').addEventListener('click', () => {
+</main>
+
+<button id="liveVoiceBtn" class="live-fab bg-orange-500 hover:bg-orange-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-xl cursor-pointer" title="Hablar con Platàs">
+    <i class="fa-solid fa-headset"></i>
+</button>
+
+<nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around items-center pb-safe pt-2 px-2 z-50 pb-2">
+    <a href="#" class="flex flex-col items-center p-2 text-orange-500">
+        <i class="fa-solid fa-compass text-xl mb-1"></i>
+        <span class="text-[10px] font-medium">Explorar</span>
+    </a>
+    <a href="#" class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-camera text-xl mb-1"></i>
+        <span class="text-[10px] font-medium">Subir Plato</span>
+    </a>
+    <a href="#" class="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-bookmark text-xl mb-1"></i>
+        <span class="text-[10px] font-medium">Guardados</span>
+    </a>
+</nav>
+
+<!-- Modal Configuración API -->
+<div id="apiModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl transform transition-all">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Configuración IA</h3>
+            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Introduce tu API Key gratuita de Gemini para buscar en vivo.</p>
+        <input type="password" id="apiKeyInput" placeholder="Pega aquí tu API Key (AIzaSy...)" class="w-full border border-gray-300 rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none mb-4 bg-gray-50">
+        <button id="saveApiBtn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-colors">Guardar en mi dispositivo</button>
+    </div>
+</div>
+
+<script>
+    let currentResults = [];
+    const apiModal = document.getElementById('apiModal');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    
+    function getApiKey() { return localStorage.getItem('platas_api_key'); }
+
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+        apiKeyInput.value = getApiKey() || '';
+        apiModal.classList.remove('hidden');
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => { apiModal.classList.add('hidden'); });
+
+    document.getElementById('saveApiBtn').addEventListener('click', () => {
+        const key = apiKeyInput.value.trim();
+        if (key) {
+            localStorage.setItem('platas_api_key', key);
             apiModal.classList.add('hidden');
-        });
+            if (searchInput.value) performSearch(searchInput.value);
+        } else {
+            localStorage.removeItem('platas_api_key');
+            apiModal.classList.add('hidden');
+        }
+    });
 
-        document.getElementById('saveApiBtn').addEventListener('click', () => {
-            const key = apiKeyInput.value.trim();
-            if (key) {
-                localStorage.setItem('platas_api_key', key);
-                apiModal.classList.add('hidden');
-                
-                // Si el usuario intentó buscar antes y falló, reintenta automáticamente
-                if (searchInput.value) performSearch(searchInput.value);
-            } else {
-                localStorage.removeItem('platas_api_key');
-                apiModal.classList.add('hidden');
-            }
-        });
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const sortSelect = document.getElementById('sortSelect');
+    const defaultContainer = document.getElementById('defaultContainer');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsGrid = document.getElementById('resultsGrid');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const tagBtns = document.querySelectorAll('.tag-btn');
+    const micBtn = document.getElementById('micBtn');
 
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const sortSelect = document.getElementById('sortSelect');
-        const defaultContainer = document.getElementById('defaultContainer');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const resultsGrid = document.getElementById('resultsGrid');
-        const resultsTitle = document.getElementById('resultsTitle');
-        const tagBtns = document.querySelectorAll('.tag-btn');
-        const micBtn = document.getElementById('micBtn');
+    window.abrirRuta = function(event, url) {
+        event.stopPropagation();
+        let win = window.open(url, '_blank');
+        if (!win || win.closed || typeof win.closed == 'undefined') {
+            window.location.href = url;
+        }
+    };
 
-        const normalizeStr = (str) => {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        };
-
-        // Función para abrir Google Maps en móviles
-        window.abrirRuta = function(event, url) {
-            event.stopPropagation();
-            let win = window.open(url, '_blank');
-            if (!win || win.closed || typeof win.closed == 'undefined') {
-                window.location.href = url;
-            }
-        };
-
-        function createCardHtml(plato, location) {
-            let menuBadgeHtml = '';
-            const foodImages = [
-                "https://images.unsplash.com/photo-1544025162-8314545082cb?auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80"
-            ];
-            
-            const imageUrl = foodImages[Math.floor(Math.random() * foodImages.length)];
-
-            if (plato.menuData && (plato.menuData.bebidaIncluida !== undefined)) {
-                const badgeColor = plato.menuData.bebidaIncluida ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
-                const badgeIcon = plato.menuData.bebidaIncluida ? 'fa-check-circle' : 'fa-times-circle';
-                const badgeText = plato.menuData.bebidaIncluida ? 'Bebida Incluida' : 'Bebida NO Incluida';
-                const extraText = plato.menuData.bebidasExtra ? `<p class="text-xs text-gray-500 italic mt-1"><i class="fa-solid fa-martini-glass-empty mr-1"></i>Extra: ${plato.menuData.bebidasExtra}</p>` : '';
-                
-                menuBadgeHtml = `
-                    <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold border ${badgeColor}">
-                                <i class="fa-solid ${badgeIcon}"></i> ${badgeText}
-                            </span>
-                        </div>
-                        ${extraText}
+    function createCardHtml(plato, location) {
+        let menuBadgeHtml = '';
+        if (plato.menuData && (plato.menuData.bebidaIncluida !== undefined)) {
+            const badgeColor = plato.menuData.bebidaIncluida ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
+            const badgeIcon = plato.menuData.bebidaIncluida ? 'fa-check-circle' : 'fa-times-circle';
+            const badgeText = plato.menuData.bebidaIncluida ? 'Bebida Incluida' : 'Bebida NO Incluida';
+            const extraText = plato.menuData.bebidasExtra ? `<p class="text-xs text-gray-500 italic mt-1"><i class="fa-solid fa-martini-glass-empty mr-1"></i>Extra: ${plato.menuData.bebidasExtra}</p>` : '';
+            menuBadgeHtml = `
+                <div class="mt-2.5 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border ${badgeColor}">
+                            <i class="fa-solid ${badgeIcon}"></i> ${badgeText}
+                        </span>
                     </div>
-                `;
-            }
-
-            const statusHtml = plato.abierto 
-                ? '<span class="text-green-500 text-xs font-semibold ml-1">• Abierto ahora</span>'
-                : '<span class="text-red-500 text-xs font-semibold ml-1">• Cerrado ahora</span>';
-
-            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(plato.restaurante + ', ' + location)}`;
-            const distanceText = plato.distanciaMts ? (plato.distanciaMts >= 1000 ? (plato.distanciaMts/1000).toFixed(1) + ' km' : plato.distanciaMts + ' m') : 'Cerca';
-
-            return `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden dish-card">
-                    <div class="h-48 w-full bg-cover bg-center" style="background-image: url('${imageUrl}')">
-                        <div class="absolute top-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg font-bold text-sm text-gray-800 shadow-sm flex items-center gap-1">
-                            <i class="fa-solid fa-star text-yellow-400"></i> ${plato.nota || '?'}
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900 leading-tight">${plato.nombre}</h3>
-                                <p class="text-sm text-gray-500"><i class="fa-solid fa-store w-4 text-center"></i> ${plato.restaurante} ${statusHtml}</p>
-                            </div>
-                            <span class="text-lg font-semibold text-orange-500">${plato.precio}</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-1 line-clamp-2">"${plato.comentario}"</p>
-                        ${menuBadgeHtml}
-                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                            <div class="flex flex-col text-xs text-gray-400">
-                                <span><i class="fa-solid fa-clock-rotate-left mr-1"></i>Actualizado reciéntemente</span>
-                                <span>${plato.reviews || 0} valoraciones</span>
-                            </div>
-                            <div class="flex flex-col items-end">
-                                <button onclick="abrirRuta(event, '${mapsUrl}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2 shadow-sm">
-                                    <i class="fa-solid fa-location-arrow"></i> Ir
-                                </button>
-                                <span class="text-[10px] text-gray-500 font-medium mt-1">A ${distanceText}</span>
-                            </div>
-                        </div>
-                    </div>
+                    ${extraText}
                 </div>
             `;
         }
 
-        async function fetchDynamicPlaces(dish, location) {
-            const apiKey = getApiKey();
-            if (!apiKey) {
-                apiModal.classList.remove('hidden');
-                throw new Error("Falta la API Key. Por favor, añádela en el menú que acaba de abrirse para poder usar la IA.");
-            }
+        const statusHtml = plato.abierto 
+            ? '<span class="text-green-600 text-xs font-semibold ml-1">• Abierto</span>'
+            : '<span class="text-red-500 text-xs font-semibold ml-1">• Cerrado</span>';
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(plato.restaurante + ', ' + location)}`;
+        const distanceText = plato.distanciaMts ? (plato.distanciaMts >= 1000 ? (plato.distanciaMts/1000).toFixed(1) + ' km' : plato.distanciaMts + ' m') : 'Cerca';
 
-            const prompt = `Actúa como un recomendador gastronómico experto. El usuario busca comer "${dish}" en o cerca de la ubicación "${location}".
-            Genera un JSON con entre 5 y 8 restaurantes REALES y conocidos de esa zona específica que destaquen por ese plato. 
-            Si piden un "menú del día", busca restaurantes de menú diarios en esa zona.
-            Usa nombres reales de restaurantes, estima su nota media real en Google Maps, e inventa una distancia realista (distanciaMts en metros) respecto al centro de esa zona.`;
+        return `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 dish-card flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="inline-block px-2.5 py-0.5 bg-orange-50 text-orange-600 text-xs font-bold rounded-md mb-1">${plato.nombre}</span>
+                            <h3 class="text-lg font-bold text-gray-900 leading-snug">${plato.restaurante}</h3>
+                        </div>
+                        <div class="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                            <i class="fa-solid fa-star text-amber-500 text-xs"></i>
+                            <span class="font-bold text-sm text-amber-900">${plato.nota || '?'}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 my-2 italic">"${plato.comentario}"</p>
+                    ${menuBadgeHtml}
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-sm font-extrabold text-gray-900">${plato.precio}</span>
+                        <span class="text-xs text-gray-400 block">${plato.reviews || 0} valoraciones ${statusHtml}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <button onclick="abrirRuta(event, '${mapsUrl}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-location-arrow"></i> Ir
+                        </button>
+                        <span class="text-[10px] text-gray-500 font-semibold mt-1">A ${distanceText}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                "nombre": { type: "STRING" },
-                                "restaurante": { type: "STRING" },
-                                "precio": { type: "STRING" },
-                                "nota": { type: "NUMBER" },
-                                "distanciaMts": { type: "INTEGER" },
-                                "reviews": { type: "INTEGER" },
-                                "comentario": { type: "STRING" },
-                                "abierto": { type: "BOOLEAN" },
-                                "menuData": {
-                                    type: "OBJECT",
-                                    properties: {
-                                        "bebidaIncluida": { type: "BOOLEAN" },
-                                        "bebidasExtra": { type: "STRING" }
-                                    }
-                                }
-                            },
-                            required: ["nombre", "restaurante", "precio", "nota", "distanciaMts", "reviews", "comentario", "abierto"]
-                        }
-                    }
-                }
-            };
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error("Detalles del error de Google:", errorData);
-                throw new Error(errorData.error?.message || "Error en la API de búsqueda");
-            }
-            
-            const data = await response.json();
-            
-            if (!data.candidates || data.candidates.length === 0) {
-                throw new Error("La API no generó resultados.");
-            }
-            
-            let resultText = data.candidates[0].content.parts[0].text;
-            
-            // FILTRO DE SEGURIDAD: Limpiar bloques Markdown y posibles espacios extra
-            resultText = resultText.replace(/^```(?:json)?\n?/gi, '').replace(/```$/gi, '').trim();
-            
-            try {
-                return JSON.parse(resultText);
-            } catch (e) {
-                console.error("Error parseando JSON:", resultText);
-                throw new Error("Google devolvió datos con un formato ilegible. Vuelve a pulsar Buscar.");
-            }
+    async function fetchDynamicPlaces(dish, location) {
+        const apiKey = getApiKey();
+        if (!apiKey) {
+            apiModal.classList.remove('hidden');
+            throw new Error("Falta la API Key. Por favor, añádela en el menú de ajustes superior.");
         }
 
-        async function performSearch(query) {
-            if (!query) {
-                resultsContainer.classList.add('hidden');
-                defaultContainer.classList.remove('hidden');
-                return;
-            }
-            
-            query = query.trim();
-            searchInput.value = query; 
-            
-            const locationInput = document.getElementById('locationInput');
-            const location = locationInput && locationInput.value ? locationInput.value : 'Barcelona';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
-            defaultContainer.classList.add('hidden');
-            resultsContainer.classList.remove('hidden');
-            
-            resultsTitle.textContent = `Buscando "${query}" en ${location}...`;
+        const prompt = `Eres un experto crítico gastronómico y conocedor hiperlocal de la zona exacta de "${location}". El usuario busca comer o encontrar "${dish}".
+        
+        REGLAS DE BÚSQUEDA EXHAUSTIVA OBLIGATORIAS:
+        1. Prioriza obligatoriamente pequeños bares de barrio reales, bodegas locales, tascas tradicionales y establecimientos muy conocidos y frecuentados por los trabajadores y vecinos de "${location}" (por ejemplo, si buscan en el Born o Eixample, incluye locales específicos de referencia local como "La Catalana", "Il Passatore", etc., si aplican).
+        2. Genera un listado estricto en JSON con entre 6 y 10 restaurantes REALES y operativos en esa zona exacta (${location}) que ofrezcan ese plato, menú o establecimiento.
+        
+        Devuelve únicamente un JSON puro en formato de Array con los campos:
+        - "nombre": plato o nombre de la oferta.
+        - "restaurante": nombre real del establecimiento.
+        - "precio": precio estimado.
+        - "nota": puntuación real de Google Maps (ej. 4.4).
+        - "distanciaMts": distancia en metros (entre 50 y 1500).
+        - "reviews": número aproximado de reseñas.
+        - "comentario": breve descripción real de por qué destaca.
+        - "abierto": true o false.
+        - "menuData": opcional si es menú con "bebidaIncluida" (boolean) y "bebidasExtra" (string).`;
+
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                responseMimeType: "application/json"
+            }
+        };
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new Error("No se obtuvieron resultados de la IA.");
+        }
+        
+        let resultText = data.candidates[0].content.parts[0].text;
+        resultText = resultText.replace(/^```(?:json)?\n?/gi, '').replace(/```$/gi, '').trim();
+        
+        return JSON.parse(resultText);
+    }
+
+    async function performSearch(query) {
+        if (!query) {
+            resultsContainer.classList.add('hidden');
+            defaultContainer.classList.remove('hidden');
+            return;
+        }
+        
+        query = query.trim();
+        searchInput.value = query; 
+        const locationInput = document.getElementById('locationInput');
+        const location = locationInput && locationInput.value ? locationInput.value : 'Barcelona';
+
+        defaultContainer.classList.add('hidden');
+        resultsContainer.classList.remove('hidden');
+        
+        resultsTitle.textContent = `Buscando "${query}" en ${location}...`;
+        resultsGrid.innerHTML = `
+            <div class="col-span-full py-16 text-center">
+                <i class="fa-solid fa-fire-burner text-5xl text-orange-500 mb-4 animate-bounce"></i>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Cocinando resultados...</h3>
+                <p class="text-gray-500">Rastreando ${location} mediante IA hiperlocal.</p>
+            </div>
+        `;
+
+        try {
+            currentResults = await fetchDynamicPlaces(query, location);
+            renderResults(query, location);
+        } catch (error) {
+            console.error(error);
             resultsGrid.innerHTML = `
-                <div class="col-span-full py-16 text-center">
-                    <i class="fa-solid fa-fire-burner text-5xl text-orange-500 mb-4 animate-bounce"></i>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Cocinando resultados...</h3>
-                    <p class="text-gray-500">Rastreando la zona de ${location} mediante IA.<br>Esto tomará unos segundos.</p>
+                <div class="col-span-full py-12 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl text-red-500">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">¡Error en la consulta!</h3>
+                    <p class="text-gray-500 text-sm max-w-sm mx-auto break-words font-mono text-xs">${error.message}</p>
                 </div>
             `;
+        }
+    }
 
-            try {
-                currentResults = await fetchDynamicPlaces(query, location);
-                renderResults(query, location);
-            } catch (error) {
-                console.error(error);
-                
-                // Mostrar el error exacto que devuelve Google en lugar del genérico
-                let errorMessage = error.message;
-                if (errorMessage === "Error en la API de búsqueda") {
-                    errorMessage = 'No hemos podido contactar con el oráculo gastronómico. Revisa tu conexión.';
-                }
+    function renderResults(query, location) {
+        resultsTitle.textContent = `Resultados para "${query}" en ${location}`;
+        resultsGrid.innerHTML = '';
 
-                resultsGrid.innerHTML = `
-                    <div class="col-span-full py-12 text-center">
-                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl text-red-500">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-1">¡Vaya! Algo ha ido mal</h3>
-                        <p class="text-gray-500 text-sm max-w-sm mx-auto break-words">${errorMessage}</p>
-                    </div>
-                `;
-            }
+        if (!currentResults || currentResults.length === 0) {
+            resultsGrid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No se encontraron resultados.</div>`;
+            return;
         }
 
-        function renderResults(query, location) {
-            resultsTitle.textContent = `Resultados para "${query}" en ${location}`;
-            resultsGrid.innerHTML = '';
-
-            if (!currentResults || currentResults.length === 0) {
-                resultsGrid.innerHTML = `
-                    <div class="col-span-full py-12 text-center">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl text-gray-400">
-                            <i class="fa-solid fa-ghost"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-1">Aún no hay reseñas de esto</h3>
-                        <p class="text-gray-500 text-sm max-w-sm mx-auto">Nadie ha encontrado este plato por aquí.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const sortMode = sortSelect ? sortSelect.value : 'nota';
-            
-            const platosOrdenados = [...currentResults].sort((a, b) => {
-                if (sortMode === 'distancia') {
-                    return (a.distanciaMts || 0) - (b.distanciaMts || 0);
-                }
-                return (b.nota || 0) - (a.nota || 0);
-            });
-            
-            platosOrdenados.forEach(plato => {
-                resultsGrid.innerHTML += createCardHtml(plato, location);
-            });
-        }
-
-        searchBtn.addEventListener('click', () => performSearch(searchInput.value));
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch(searchInput.value);
-        });
-
-        tagBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const query = btn.getAttribute('data-query');
-                performSearch(query);
-            });
-        });
-
-        sortSelect.addEventListener('change', () => {
-            if (searchInput.value && currentResults.length > 0) {
-                const locationInput = document.getElementById('locationInput');
-                renderResults(searchInput.value, locationInput ? locationInput.value : 'Barcelona');
-            }
+        const sortMode = sortSelect ? sortSelect.value : 'nota';
+        const sorted = [...currentResults].sort((a, b) => {
+            if (sortMode === 'distancia') return (a.distanciaMts || 0) - (b.distanciaMts || 0);
+            return (b.nota || 0) - (a.nota || 0);
         });
         
-        const gpsBtn = document.getElementById('gpsBtn');
-        if (gpsBtn) {
-            gpsBtn.addEventListener('click', () => {
-                const locInput = document.getElementById('locationInput');
-                if (navigator.geolocation) {
-                    locInput.value = "Ubicando...";
-                    locInput.classList.add('animate-pulse');
-                    
-                    navigator.geolocation.getCurrentPosition(async (pos) => {
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
-                        try {
-                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-                            const data = await res.json();
-                            const neighborhood = data.address.suburb || data.address.neighbourhood || data.address.city || data.address.town || 'Mi ubicación';
-                            locInput.value = neighborhood;
-                        } catch(e) {
-                            locInput.value = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-                        }
-                        locInput.classList.remove('animate-pulse');
-                        
-                        if (searchInput.value) {
-                            performSearch(searchInput.value);
-                        }
-                    }, () => {
-                        locInput.value = "Barcelona Centro";
-                        locInput.classList.remove('animate-pulse');
-                        alert("No pudimos acceder al GPS. Asegúrate de dar permisos en tu navegador.");
-                    });
-                } else {
-                    alert("Tu navegador no soporta geolocalización.");
-                }
-            });
-        }
-
-        window.performSearch = performSearch;
-
-        // Reconocimiento básico para la barra de búsqueda
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
-        
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'es-ES'; 
-            
-            recognition.onstart = function() {
-                micBtn.innerHTML = '<i class="fa-solid fa-microphone-lines text-orange-500 animate-pulse text-lg"></i>';
-                searchInput.placeholder = "Escuchando...";
-                searchInput.value = "";
-            };
-
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript.replace(/\.$/, ""); 
-                searchInput.value = transcript;
-                performSearch(transcript);
-            };
-
-            recognition.onerror = function() { resetMic(); };
-            recognition.onend = function() { resetMic(); };
-        }
-
-        function resetMic() {
-            micBtn.innerHTML = '<i class="fa-solid fa-microphone text-gray-400 hover:text-orange-500 text-lg transition-colors"></i>';
-            searchInput.placeholder = "¿Qué plato te apetece hoy?";
-        }
-
-        if (micBtn) {
-            micBtn.addEventListener('click', () => {
-                if (recognition) {
-                    try { recognition.start(); } catch (e) { }
-                } else {
-                    alert("Búsqueda por voz no soportada en tu dispositivo.");
-                }
-            });
-        }
-
-        // Asistente Conversacional (Botón Flotante)
-        const liveVoiceBtn = document.getElementById('liveVoiceBtn');
-        let liveRecognition;
-        let isLiveActive = false;
-
-        function speakText(text) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'es-ES';
-            const voices = window.speechSynthesis.getVoices();
-            const bestVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('es')) || 
-                              voices.find(v => v.lang.includes('es'));
-            if (bestVoice) utterance.voice = bestVoice;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        async function handleLiveCommand(transcript) {
-            const locationInput = document.getElementById('locationInput');
-            const location = locationInput ? locationInput.value : 'Barcelona';
-            
-            const query = transcript.toLowerCase().replace(/(quiero|buscar|comer|me apetece|donde hay|un buen|una buena)\s+/g, '').trim();
-
-            speakText(`Voy a buscar ${query} por la zona de ${location}. Dame un momento...`);
-            
-            await window.performSearch(query);
-            
-            if (currentResults && currentResults.length > 0) {
-                const sortMode = document.getElementById('sortSelect').value;
-                const best = [...currentResults].sort((a, b) => {
-                    if (sortMode === 'distancia') return (a.distanciaMts || 0) - (b.distanciaMts || 0);
-                    return (b.nota || 0) - (a.nota || 0);
-                })[0];
-                
-                let speech = `¡Listo! He encontrado opciones. `;
-                if (sortMode === 'distancia') {
-                    speech += `El más cercano es ${best.restaurante}, a unos ${best.distanciaMts || '?'} metros.`;
-                } else {
-                    speech += `El mejor valorado es ${best.restaurante}, con un ${best.nota || '?'} sobre 10.`;
-                }
-                
-                if (best.menuData && best.menuData.bebidaIncluida !== undefined) {
-                    speech += best.menuData.bebidaIncluida 
-                        ? " Y buenas noticias, tiene la bebida incluida." 
-                        : " Ojo, que la bebida se cobra aparte.";
-                }
-                
-                speakText(speech);
-            } else {
-                speakText(`Vaya, no he podido encontrar nada. Asegúrate de tener configurada la API Key.`);
-            }
-        }
-
-        function startLiveSession() {
-            liveVoiceBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
-            liveVoiceBtn.classList.replace('bg-orange-500', 'bg-red-500');
-            liveVoiceBtn.classList.add('active');
-            isLiveActive = true;
-            
-            if (SpeechRecognition) {
-                liveRecognition = new SpeechRecognition();
-                liveRecognition.continuous = true; 
-                liveRecognition.interimResults = false;
-                liveRecognition.lang = 'es-ES';
-                
-                liveRecognition.onstart = () => {
-                    speakText("Hola, soy Platàs. Dime, ¿Qué te apetece comer hoy y por dónde?");
-                };
-
-                liveRecognition.onresult = (event) => {
-                    const lastResult = event.results[event.results.length - 1];
-                    if (lastResult.isFinal) {
-                        handleLiveCommand(lastResult[0].transcript);
-                    }
-                };
-
-                liveRecognition.onend = () => {
-                    if (isLiveActive) {
-                        try { liveRecognition.start(); } catch(e){}
-                    }
-                };
-                liveRecognition.start();
-            } else {
-                alert("Tu navegador no soporta esta función conversacional.");
-                stopSession();
-            }
-        }
-
-        function stopSession() {
-            isLiveActive = false;
-            liveVoiceBtn.classList.remove('active');
-            liveVoiceBtn.innerHTML = '<i class="fa-solid fa-headset"></i>';
-            liveVoiceBtn.classList.replace('bg-red-500', 'bg-orange-500');
-            
-            if (liveRecognition) {
-                liveRecognition.onend = null; 
-                liveRecognition.stop();
-            }
-            window.speechSynthesis.cancel();
-        }
-
-        liveVoiceBtn.addEventListener('click', () => {
-            if (isLiveActive) { stopSession(); } else { startLiveSession(); }
+        sorted.forEach(plato => {
+            resultsGrid.innerHTML += createCardHtml(plato, location);
         });
-        
-        window.speechSynthesis.onvoiceschanged = function() {
-            window.speechSynthesis.getVoices();
+    }
+
+    searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+    searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(searchInput.value); });
+    tagBtns.forEach(btn => btn.addEventListener('click', () => performSearch(btn.getAttribute('data-query'))));
+    sortSelect.addEventListener('change', () => {
+        if (searchInput.value && currentResults.length > 0) {
+            renderResults(searchInput.value, document.getElementById('locationInput').value);
+        }
+    });
+    
+    const gpsBtn = document.getElementById('gpsBtn');
+    if (gpsBtn) {
+        gpsBtn.addEventListener('click', () => {
+            const locInput = document.getElementById('locationInput');
+            if (navigator.geolocation) {
+                locInput.value = "Ubicando...";
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+                        const data = await res.json();
+                        locInput.value = data.address.suburb || data.address.neighbourhood || data.address.city || 'Mi ubicación';
+                    } catch(e) { locInput.value = `${lat.toFixed(4)}, ${lon.toFixed(4)}`; }
+                    if (searchInput.value) performSearch(searchInput.value);
+                }, () => { locInput.value = "Barcelona Centro"; alert("GPS denegado."); });
+            }
+        });
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'es-ES';
+        recognition.onresult = (e) => {
+            const text = e.results[0][0].transcript.replace(/\.$/, "");
+            searchInput.value = text;
+            performSearch(text);
         };
-    </script>
-</body>
-</html>
+    }
+    if (micBtn) micBtn.addEventListener('click', () => { try { recognition.start(); } catch(e){} });
+</script>
